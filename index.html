@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FAQ Chatbot</title>
+  <script src="https://cdn.jsdelivr.net/npm/fuzzyset.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -60,7 +61,6 @@
       background: #0056b3;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/fuzzyset.js@0.0.1/fuzzyset.js"></script>
 </head>
 <body>
   <h1>FAQ Chatbot</h1>
@@ -74,23 +74,22 @@
 
   <script>
     const chatBox = document.getElementById('chatBox');
-    let faqData = [];
-    let fuzzySet;
+    let faqData = [];  // FAQ data
+    let fuzzySet = null;  // FuzzySet instance
 
-    // Fetch the FAQ data from the JSON file
+    // Fetch FAQ data from JSON file
     fetch('faqData.json')
       .then(response => response.json())
       .then(data => {
         faqData = data.faqs;
-        // Create a fuzzy set for all the FAQ questions
         fuzzySet = FuzzySet(faqData.map(faq => faq.question));
       })
       .catch(error => {
         console.error('Error loading FAQ data:', error);
-        faqData = []; // Ensure faqData is defined even if there's an error
+        faqData = [];
       });
 
-    // Add a message to the chatbox
+    // Add message to chatbox
     function addMessage(text, sender) {
       const message = document.createElement('div');
       message.className = `message ${sender}-message`;
@@ -106,20 +105,18 @@
 
       addMessage(userInput, 'user');
 
-      // Use fuzzy matching to find the best match
+      // Get fuzzy match
       let bestMatch = fuzzySet.get(userInput);
+
       let response = "I'm sorry, I don't understand that question.";
 
       if (bestMatch && bestMatch.length > 0 && bestMatch[0][0] > 0.5) {
-        // If the match has a confidence greater than 50%, return the corresponding answer
         let matchedQuestion = bestMatch[0][1];
         let faq = faqData.find(f => f.question === matchedQuestion);
         response = faq ? faq.answer : response;
       }
 
       addMessage(response, 'bot');
-
-      // Clear input
       document.getElementById('userInput').value = '';
     }
   </script>
