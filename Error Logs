@@ -1,0 +1,11 @@
+fetch('faqData.json')
+  .then(response => response.json())
+  .then(data => {
+    console.log(data); // Add this line to check the data
+    faqData = data.faqs;
+    fuzzySet = FuzzySet(faqData.map(faq => faq.question));
+  })
+  .catch(error => {
+    console.error('Error loading FAQ data:', error);
+    faqData = [];
+  });
