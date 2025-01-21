@@ -60,6 +60,7 @@
       background: #0056b3;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/fuzzyset.js@0.0.1/fuzzyset.js"></script>
 </head>
 <body>
   <h1>FAQ Chatbot</h1>
@@ -73,20 +74,20 @@
 
   <script>
     const chatBox = document.getElementById('chatBox');
-    let faqData = {};
+    let faqData = [];
+    let fuzzySet;
 
     // Fetch the FAQ data from the JSON file
     fetch('faqData.json')
       .then(response => response.json())
       .then(data => {
-        faqData = data.faqs.reduce((acc, faq) => {
-          acc[faq.question] = faq.answer;
-          return acc;
-        }, {});
+        faqData = data.faqs;
+        // Create a fuzzy set for all the FAQ questions
+        fuzzySet = FuzzySet(faqData.map(faq => faq.question));
       })
       .catch(error => {
         console.error('Error loading FAQ data:', error);
-        faqData = {}; // Ensure faqData is defined even if there's an error
+        faqData = []; // Ensure faqData is defined even if there's an error
       });
 
     // Add a message to the chatbox
@@ -105,8 +106,17 @@
 
       addMessage(userInput, 'user');
 
-      // Get bot response
-      const response = faqData[userInput] || "I'm sorry, I don't understand that question.";
+      // Use fuzzy matching to find the best match
+      let bestMatch = fuzzySet.get(userInput);
+      let response = "I'm sorry, I don't understand that question.";
+
+      if (bestMatch && bestMatch.length > 0 && bestMatch[0][0] > 0.5) {
+        // If the match has a confidence greater than 50%, return the corresponding answer
+        let matchedQuestion = bestMatch[0][1];
+        let faq = faqData.find(f => f.question === matchedQuestion);
+        response = faq ? faq.answer : response;
+      }
+
       addMessage(response, 'bot');
 
       // Clear input
