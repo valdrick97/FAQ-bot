@@ -40,7 +40,7 @@
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       overflow: hidden;
-      display: none; /* Initially hidden */
+      display: none; /* Hidden by default */
       z-index: 1000;
     }
 
@@ -153,7 +153,9 @@
 
     // Toggle chat container visibility
     function toggleChat() {
-      chatContainer.style.display = (chatContainer.style.display === 'none' || chatContainer.style.display === '') ? 'block' : 'none';
+      // Hide or show the chat container
+      const isVisible = chatContainer.style.display === 'block';
+      chatContainer.style.display = isVisible ? 'none' : 'block';
     }
   </script>
 
