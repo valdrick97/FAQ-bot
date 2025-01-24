@@ -1,7 +1,7 @@
 {
   "faqs": [
     {
-      "question": ["What are your hours?", " What hours are you open?"],
+      "question": "What are your hours?",
       "answer": "Our new hours are 12 AM to 6 PM, Monday through Friday."
     },
     {
