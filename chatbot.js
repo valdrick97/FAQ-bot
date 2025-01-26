@@ -53,20 +53,32 @@ function sendMessage() {
 
 // Toggle chat container visibility
 function toggleChat() {
-  chatContainer.style.display =
-    chatContainer.style.display === 'none' || chatContainer.style.display === '' ? 'block' : 'none';
+  const isChatOpen = chatContainer.style.display === 'block';
+  chatContainer.style.display = isChatOpen ? 'none' : 'block';
+
+  // Show the popup message only when the chat is closed
+  if (!isChatOpen) {
+    setTimeout(() => {
+      popupMessage.style.display = 'block';
+      setTimeout(() => {
+        popupMessage.style.display = 'none';
+      }, 5000); // Hide the popup after 5 seconds
+    }, 3000); // Delay popup appearance after chat is closed
+  } else {
+    popupMessage.style.display = 'none'; // Hide the popup if the chat is open
+  }
 }
 
 // Random pop-up message
 function showPopupMessage() {
-  const randomDelay = Math.floor(Math.random() * (9000 - 7000 + 1)) + 7000; // Random delay between 7-9 seconds
-  setTimeout(() => {
+  // Ensure the popup appears only if the chat is closed
+  if (chatContainer.style.display !== 'block') {
     popupMessage.style.display = 'block';
     setTimeout(() => {
       popupMessage.style.display = 'none';
-    }, 5000); // Hide the message after 3 seconds
-  }, randomDelay);
+    }, 5000); // Hide the popup after 5 seconds
+  }
 }
 
 // Call showPopupMessage randomly
-setInterval(showPopupMessage, Math.random() * (30000 - 20000) + 20000); // Random intervals between 30-20 seconds
+setInterval(showPopupMessage, Math.random() * (30000 - 20000) + 20000); // Random intervals between 20-30 seconds
