@@ -53,31 +53,16 @@ function sendMessage() {
 
 // Toggle chat container visibility
 function toggleChat() {
-  const isChatOpen = chatContainer.style.display === 'block';
-  chatContainer.style.display = isChatOpen ? 'none' : 'block';
-
-  // Show the popup message only when the chat is closed
-  if (!isChatOpen) {
-    setTimeout(() => {
-      popupMessage.style.display = 'block';
-      setTimeout(() => {
-        popupMessage.style.display = 'none';
-      }, 5000); // Hide the popup after 5 seconds
-    }, 3000); // Delay popup appearance after chat is closed
-  } else {
-    popupMessage.style.display = 'none'; // Hide the popup if the chat is open
-  }
+  chatContainer.style.display =
+    chatContainer.style.display === 'none' || chatContainer.style.display === '' ? 'block' : 'none';
 }
 
 // Random pop-up message
 function showPopupMessage() {
-  // Ensure the popup appears only if the chat is closed
-  if (chatContainer.style.display !== 'block') {
-    popupMessage.style.display = 'block';
-    setTimeout(() => {
-      popupMessage.style.display = 'none';
-    }, 5000); // Hide the popup after 5 seconds
-  }
+  popupMessage.style.display = 'block';
+  setTimeout(() => {
+    popupMessage.style.display = 'none';
+  }, 5000); // Hide the message after 5 seconds
 }
 
 // Call showPopupMessage randomly
