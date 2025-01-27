@@ -15,6 +15,25 @@
   z-index: 1000;
 }
 
+/* Chatbot button (small circle) */
+#chatbotButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 50%;
+  font-size: 30px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+}
+
 /* Category Buttons */
 .category-container {
   display: flex;
