@@ -1,139 +1,67 @@
-/* Chatbot Styles */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f0f0f0;
-}
-
-#chatbotButton {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #FF2C2C;
-  color: white;
-  border: none;
-  padding: 15px;
-  border-radius: 50%;
-  font-size: 20px;
-  cursor: pointer;
-  z-index: 1000;
-}
-
-.chat-container {
-  position: fixed;
-  bottom: 70px;
-  right: 20px;
-  width: 400px;
-  max-width: 90%;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  display: none;
-  z-index: 1000;
-}
-
-.chat-box {
-  height: 400px;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-.message {
-  margin: 10px 0;
-}
-
-.user-message {
-  text-align: right;
-}
-
-.bot-message {
-  text-align: left;
-  color: #555;
-}
-
-.input-container {
+/* Positioning the bubbles at the bottom and centering them */
+.bubble-container {
   display: flex;
-  border-top: 1px solid #ddd;
+  justify-content: center;
+  gap: 10px; /* Add space between the bubbles */
+  position: absolute;
+  bottom: 50px; /* Move closer to the input field */
+  width: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
 
-input {
-  flex: 1;
-  border: none;
-  padding: 10px;
-  outline: none;
-}
-
-button {
-  background: #007bff;
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #0056b3;
-}
-
-.popup-message {
-  position: fixed;
-  bottom: 120px;
-  right: 20px;
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  display: none;
-  z-index: 1001;
-  cursor: pointer;
-}
-
-/* Category bubbles */
-#categoryButtons {
-  display: flex;
-  justify-content: space-between; /* Space between buttons */
-  padding: 10px;
-  margin-bottom: 10px;
-  position: absolute; /* Stick them to the bottom */
-  bottom: 60px; /* Place just above the input field */
-  width: 100%; /* Stretch the container width */
-  background-color: #fff; /* Background for clarity */
-}
-
+/* Styling individual bubbles */
 .category-button {
-  flex: 1; /* Make buttons equally spaced */
-  margin: 0 5px; /* Add space between buttons */
-  padding: 10px;
-  background-color: #007bff; /* Default button color */
-  color: white;
+  padding: 10px 15px;
   border: none;
-  border-radius: 5px;
+  border-radius: 20px;
+  background-color: #007bff;
+  color: white;
   cursor: pointer;
-  transition: background-color 0.3s ease; /* Smooth hover effect */
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .category-button:hover {
-  background-color: #0056b3; /* Hover effect */
+  background-color: #0056b3;
+  transform: scale(1.1);
 }
 
-.category-button.selected {
-  background-color: #28a745; /* Green color for selected state */
+.category-button.active {
+  background-color: #28a745; /* Active category color */
 }
 
-/* Adjust chat box for better fit */
-.chat-container {
+/* Chat messages dimming */
+.message {
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 5px;
+  max-width: 80%;
+}
+
+.user-message {
+  background-color: #d1ecf1;
+  align-self: flex-end;
+}
+
+.bot-message {
+  background-color: #f8d7da;
+  align-self: flex-start;
+  opacity: 0.5; /* Older messages default to dimmed */
+  transition: opacity 0.3s ease;
+}
+
+/* Highlight the latest message */
+.message.new {
+  opacity: 1;
+}
+
+/* Enable scrolling */
+.chat-box {
+  overflow-y: auto;
+  height: calc(100% - 140px); /* Adjust to fit the new bubble layout */
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  max-height: 70%;
-  min-height: 200px;
-  height: auto;
-}
-
-.chat-box {
-  flex: 1;
-  overflow-y: auto;
+  gap: 5px;
+  scroll-behavior: smooth;
 }
