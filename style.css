@@ -93,26 +93,31 @@ button:hover {
 }
 
 /* Category bubbles */
-.category-container {
+#categoryButtons {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 10px 10px 20px;
+  justify-content: space-between; /* Space between buttons */
+  padding: 10px;
+  margin-bottom: 10px;
+  position: absolute; /* Stick them to the bottom */
+  bottom: 60px; /* Place just above the input field */
+  width: 100%; /* Stretch the container width */
+  background-color: #fff; /* Background for clarity */
 }
 
 .category-button {
-  background-color: #007bff;
+  flex: 1; /* Make buttons equally spaced */
+  margin: 0 5px; /* Add space between buttons */
+  padding: 10px;
+  background-color: #007bff; /* Default button color */
   color: white;
   border: none;
-  padding: 10px;
-  border-radius: 20px;
-  font-size: 14px;
+  border-radius: 5px;
   cursor: pointer;
-  width: 20%;
-  text-align: center;
+  transition: background-color 0.3s ease; /* Smooth hover effect */
 }
 
 .category-button:hover {
-  background-color: #40056b3;
+  background-color: #0056b3; /* Hover effect */
 }
 
 /* Adjust chat box for better fit */
