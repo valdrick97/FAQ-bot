@@ -126,7 +126,7 @@
     opacity: 1;
     transform: translateY(0);
   }
-
+  /* Box that holds everything */
   .chat-container {
   width: 400px;  /* Adjust width */
   height: 500px; /* Adjust height */
