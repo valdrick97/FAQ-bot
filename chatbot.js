@@ -1,81 +1,128 @@
 const chatBox = document.getElementById("chatBox");
-const categoryButtons = document.getElementById("categoryButtons");
+const chatContainer = document.getElementById("chatContainer");
+const popupMessage = document.getElementById("popupMessage");
+const categoryContainer = document.getElementById("categoryContainer");
 let selectedCategory = null;
+let faqData = [];
+let categoryData = [];
+let fuzzySet = null;
 
-// Center the bubbles and handle selection
+// Load FAQ data
+fetch("faqData.json")
+  .then((response) => response.json())
+  .then((data) => {
+    faqData = data.faqs;
+    fuzzySet = FuzzySet(faqData.map((faq) => faq.question));
+  })
+  .catch((error) => console.error("Error loading FAQ data:", error));
+
+// Load Categories
+fetch("categories.json")
+  .then((response) => response.json())
+  .then((data) => {
+    categoryData = data.categories;
+    loadCategories();
+  })
+  .catch((error) => console.error("Error loading categories:", error));
+
+// Ensure chat starts closed on load
+document.addEventListener("DOMContentLoaded", () => {
+  chatContainer.style.display = "none";
+  popupMessage.style.display = "block";
+});
+
+// Toggle chat visibility
+function toggleChat() {
+  if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
+    chatContainer.style.display = "flex";
+    popupMessage.style.display = "none";
+  } else {
+    chatContainer.style.display = "none";
+    popupMessage.style.display = "block";
+  }
+}
+
+// Add message to chatbox
+function addMessage(text, sender) {
+  const message = document.createElement("div");
+  message.className = `message ${sender}-message`;
+
+  // Dim old bot messages
+  if (sender === "bot") {
+    const oldMessages = chatBox.querySelectorAll(".bot-message");
+    oldMessages.forEach((msg) => msg.classList.add("dim"));
+  }
+
+  message.textContent = text;
+  chatBox.appendChild(message);
+  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
+}
+
+// Load categories into the chat
 function loadCategories() {
-  categories.forEach((category) => {
+  categoryData.forEach((category) => {
     const button = document.createElement("button");
     button.className = "category-button";
     button.textContent = category.name;
-
-    button.onclick = () => {
-      if (selectedCategory === category.name) {
-        // Deselect category if clicked again
-        selectedCategory = null;
-        button.classList.remove("active");
-        addMessage("Category deselected. How can I help you?", "bot");
-      } else {
-        // Select a new category
-        selectedCategory = category.name;
-        document.querySelectorAll(".category-button").forEach((b) => b.classList.remove("active"));
-        button.classList.add("active");
-        addMessage(`What can I help you find in ${category.name}?`, "bot");
-      }
-    };
-
-    categoryButtons.appendChild(button);
+    button.onclick = () => toggleCategory(category.name, button);
+    categoryContainer.appendChild(button);
   });
 }
 
-// Add messages with dimming for previous ones
-function addMessage(text, sender) {
-  // Dim previous messages
-  const messages = document.querySelectorAll(".message");
-  messages.forEach((message) => message.classList.remove("new"));
+// Handle category selection
+function toggleCategory(category, button) {
+  const buttons = document.querySelectorAll(".category-button");
+  buttons.forEach((btn) => btn.classList.remove("selected"));
 
-  const message = document.createElement("div");
-  message.className = `message ${sender}-message new`;
-  message.textContent = text;
-
-  chatBox.appendChild(message);
-  chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the bottom
+  if (selectedCategory === category) {
+    selectedCategory = null;
+    addMessage("Category deselected. How may I help you?", "bot");
+  } else {
+    selectedCategory = category;
+    button.classList.add("selected");
+    addMessage(`What can I help you find in ${category}?`, "bot");
+  }
 }
 
-// Handle sending messages
+// Handle user input and bot response
 function sendMessage() {
-  const userInput = document.getElementById("userInput").value;
-  if (!userInput.trim()) return;
+  const userInput = document.getElementById("userInput").value.trim();
+  if (!userInput) return;
 
   addMessage(userInput, "user");
+  document.getElementById("userInput").value = "";
 
   if (selectedCategory) {
-    // Filter questions by category
-    const categoryQuestions = faqData.filter((faq) => faq.category === selectedCategory);
-    const fuzzySet = FuzzySet(categoryQuestions.map((q) => q.question));
+    // Check within the selected category
+    const categoryQuestions = categoryData.find((cat) => cat.name === selectedCategory)?.questions || [];
+    const match = categoryQuestions.find((question) => question.toLowerCase() === userInput.toLowerCase());
 
-    let bestMatch = fuzzySet.get(userInput);
-    if (bestMatch && bestMatch[0][0] > 0.5) {
-      const matchedQuestion = bestMatch[0][1];
-      const answer = categoryQuestions.find((faq) => faq.question === matchedQuestion).answer;
-      addMessage(answer, "bot");
+    if (match) {
+      const answer = faqData.find((faq) => faq.question === match)?.answer;
+      addMessage(answer || "I'm sorry, I don't have the answer to that question.", "bot");
     } else {
-      addMessage(`I couldn't find that in ${selectedCategory}.`, "bot");
+      // Fallback to other categories
+      const bestMatch = fuzzySet.get(userInput);
+      if (bestMatch && bestMatch[0][0] > 0.5) {
+        const fallbackQuestion = bestMatch[0][1];
+        const fallbackAnswer = faqData.find((faq) => faq.question === fallbackQuestion)?.answer;
+        addMessage(
+          `I couldn't find that under ${selectedCategory}. Would this help instead: ${fallbackAnswer}`,
+          "bot"
+        );
+      } else {
+        addMessage(`I couldn't find that in ${selectedCategory}. Please try asking another question.`, "bot");
+      }
     }
   } else {
-    // Use global fuzzy search
-    let bestMatch = fuzzySet.get(userInput);
+    // Fallback to fuzzy search if no category is selected
+    const bestMatch = fuzzySet.get(userInput);
     if (bestMatch && bestMatch[0][0] > 0.5) {
       const matchedQuestion = bestMatch[0][1];
-      const answer = faqData.find((faq) => faq.question === matchedQuestion).answer;
-      addMessage(answer, "bot");
+      const answer = faqData.find((faq) => faq.question === matchedQuestion)?.answer;
+      addMessage(answer || "I'm sorry, I don't have the answer to that question.", "bot");
     } else {
-      addMessage("I'm sorry, I don't understand that question.", "bot");
+      addMessage("I'm sorry, I couldn't find an answer to your question.", "bot");
     }
   }
-
-  document.getElementById("userInput").value = "";
 }
-
-// Initialize categories and chat behavior
-loadCategories();
