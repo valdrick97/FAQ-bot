@@ -1,17 +1,11 @@
 const chatBox = document.getElementById('chatBox');
 const chatContainer = document.getElementById('chatContainer');
 const popupMessage = document.getElementById('popupMessage');
-const categoryContainer = document.getElementById('categoryButtons'); // Updated for clarity
+const categoryContainer = document.getElementById('categoryButtons'); // For category bubbles
 let faqData = [];
+let categories = [];
 let fuzzySet = null;
-
-// Categories and questions
-const categories = [
-  { name: "Casino", questions: ["When is the casino open?", "What are the casino hours?"] },
-  { name: "LMS", questions: ["How do I do a B2B?", "How do I reset my password?"] },
-  { name: "Discounts", questions: ["What are this month's discount offers?", "Do you offer any discounts?"] },
-  { name: "Support", questions: ["How do I contact support?", "What is the support number?"] }
-];
+let selectedCategory = null; // Track selected category
 
 // Fetch FAQ data from JSON file
 fetch('faqData.json')
@@ -23,6 +17,18 @@ fetch('faqData.json')
   .catch(error => {
     console.error('Error loading FAQ data:', error);
     faqData = [];
+  });
+
+// Fetch Categories data from JSON file
+fetch('categories.json')
+  .then(response => response.json())
+  .then(data => {
+    categories = data;
+    loadCategories(); // Dynamically load categories once data is fetched
+  })
+  .catch(error => {
+    console.error('Error loading category data:', error);
+    categories = [];
   });
 
 // Add message to chatbox
@@ -51,10 +57,32 @@ function sendMessage() {
   let bestMatch = fuzzySet.get(userInput);
   let response = "I'm sorry, I don't understand that question.";
 
-  if (bestMatch && bestMatch.length > 0 && bestMatch[0][0] > 0.5) {
-    let matchedQuestion = bestMatch[0][1];
-    let faq = faqData.find(f => f.question === matchedQuestion);
-    response = faq ? faq.answer : response;
+  if (selectedCategory) {
+    // Filter FAQs by selected category
+    const categoryFaqs = faqData.filter(f => f.category === selectedCategory);
+    const categoryFuzzySet = FuzzySet(categoryFaqs.map(f => f.question));
+    let categoryMatch = categoryFuzzySet.get(userInput);
+
+    if (categoryMatch && categoryMatch.length > 0 && categoryMatch[0][0] > 0.5) {
+      // Match found in selected category
+      let matchedQuestion = categoryMatch[0][1];
+      let faq = categoryFaqs.find(f => f.question === matchedQuestion);
+      response = faq ? faq.answer : response;
+    } else if (bestMatch && bestMatch.length > 0 && bestMatch[0][0] > 0.5) {
+      // Suggest an answer from another category
+      let matchedQuestion = bestMatch[0][1];
+      let faq = faqData.find(f => f.question === matchedQuestion);
+      if (faq) {
+        response = `I can't find that answer under the "${selectedCategory}" category. Would this answer from another category help?\n\n${faq.answer}`;
+      }
+    }
+  } else {
+    // No category selected; use global FAQ search
+    if (bestMatch && bestMatch.length > 0 && bestMatch[0][0] > 0.5) {
+      let matchedQuestion = bestMatch[0][1];
+      let faq = faqData.find(f => f.question === matchedQuestion);
+      response = faq ? faq.answer : response;
+    }
   }
 
   addMessage(response, 'bot');
@@ -79,33 +107,28 @@ function loadCategories() {
     const button = document.createElement('button');
     button.className = 'category-button';
     button.textContent = category.name;
-    button.onclick = () => selectCategory(category.name);
+
+    button.onclick = () => toggleCategorySelection(category.name, button);
     categoryContainer.appendChild(button);
   });
 }
 
-// Handle category selection
-function selectCategory(categoryName) {
-  const buttons = document.querySelectorAll('.category-button');
-  buttons.forEach(button => button.classList.remove('selected')); // Clear selected state
+// Toggle category selection
+function toggleCategorySelection(categoryName, button) {
+  if (selectedCategory === categoryName) {
+    // If the same category is clicked again, unselect it
+    selectedCategory = null;
+    button.classList.remove('selected');
+    addMessage("You can select a category or ask a question.", 'bot');
+  } else {
+    // Select a new category
+    const buttons = document.querySelectorAll('.category-button');
+    buttons.forEach(btn => btn.classList.remove('selected')); // Clear previous selection
+    button.classList.add('selected');
 
-  const selectedButton = Array.from(buttons).find(button => button.textContent === categoryName);
-  if (selectedButton) selectedButton.classList.add('selected');
-
-  const category = categories.find(cat => cat.name === categoryName);
-  if (category) {
-    showQuestions(category);
+    selectedCategory = categoryName;
+    addMessage(`What can I help you find in ${categoryName}?`, 'bot');
   }
-}
-
-// Show questions for selected category
-function showQuestions(category) {
-  chatBox.innerHTML = ''; // Clear chat box
-  category.questions.forEach(question => {
-    addMessage(question, 'bot');
-  });
-
-  addMessage("Would you like to ask another question or change the category?", 'bot');
 }
 
 // Show the pop-up message randomly
@@ -121,6 +144,3 @@ function showPopupMessage() {
 
 // Call showPopupMessage randomly
 setInterval(showPopupMessage, Math.random() * (30000 - 20000) + 20000); // Random intervals between 20-30 seconds
-
-// Initialize categories on page load
-loadCategories();
