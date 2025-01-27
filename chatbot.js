@@ -1,10 +1,17 @@
 const chatBox = document.getElementById('chatBox');
 const chatContainer = document.getElementById('chatContainer');
 const popupMessage = document.getElementById('popupMessage');
-const categoryButtons = document.getElementById('categoryButtons');
+const categoryContainer = document.getElementById('categoryContainer');
 let faqData = [];
 let fuzzySet = null;
-let selectedCategory = null;
+
+// Categories and questions
+const categories = [
+  { name: "Casino", questions: ["When is the casino open?", "What are the casino hours?"] },
+  { name: "LMS", questions: ["How do I do a B2B?", "How do I reset my password?"] },
+  { name: "Discounts", questions: ["What are this month's discount offers?", "Do you offer any discounts?"] },
+  { name: "Support", questions: ["How do I contact support?", "What is the support number?"] }
+];
 
 // Fetch FAQ data from JSON file
 fetch('faqData.json')
@@ -12,6 +19,7 @@ fetch('faqData.json')
   .then(data => {
     faqData = data.faqs;
     fuzzySet = FuzzySet(faqData.map(faq => faq.question));
+    loadCategories();
   })
   .catch(error => {
     console.error('Error loading FAQ data:', error);
@@ -27,6 +35,7 @@ function addMessage(text, sender) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// Send message when user presses enter
 document.getElementById('userInput').addEventListener('keypress', function (e) {
   if (e.key === 'Enter') {
     sendMessage();
@@ -45,51 +54,52 @@ function sendMessage() {
 
   if (bestMatch && bestMatch.length > 0 && bestMatch[0][0] > 0.5) {
     let matchedQuestion = bestMatch[0][1];
-    let faq = faqData.find(f => f.question === matchedQuestion && (!selectedCategory || f.category === selectedCategory));
+    let faq = faqData.find(f => f.question === matchedQuestion);
     response = faq ? faq.answer : response;
   }
 
   addMessage(response, 'bot');
   document.getElementById('userInput').value = '';
-
-  // Ask if they want to ask another question or choose a new category
-  addMessage('Would you like to ask another question in this category or choose a different category?', 'bot');
 }
 
 // Toggle chat container visibility
 function toggleChat() {
   chatContainer.style.display =
     chatContainer.style.display === 'none' || chatContainer.style.display === '' ? 'block' : 'none';
-  if (chatContainer.style.display === 'block') {
-    // Initial greeting
-    addMessage('How may I help you today?', 'bot');
-  }
 }
 
-// Random pop-up message
+// Load categories into the chat
+function loadCategories() {
+  categories.forEach(category => {
+    const button = document.createElement('button');
+    button.className = 'category-button';
+    button.textContent = category.name;
+    button.onclick = () => showQuestions(category);
+    categoryContainer.appendChild(button);
+  });
+}
+
+// Show questions for selected category
+function showQuestions(category) {
+  const categoryQuestions = category.questions;
+  categoryQuestions.forEach(question => {
+    addMessage(question, 'bot');
+  });
+
+  // Ask if the user wants to ask another question
+  addMessage("Would you like to ask another question or change the category?", 'bot');
+}
+
+// Show the pop-up message randomly
 function showPopupMessage() {
-  popupMessage.style.display = 'block';
+  const randomDelay = Math.floor(Math.random() * (9000 - 7000 + 1)) + 7000; // Random delay between 7-9 seconds
   setTimeout(() => {
-    popupMessage.style.display = 'none';
-  }, 5000); // Hide the message after 5 seconds
+    popupMessage.style.display = 'block';
+    setTimeout(() => {
+      popupMessage.style.display = 'none';
+    }, 5000); // Hide the message after 3 seconds
+  }, randomDelay);
 }
 
 // Call showPopupMessage randomly
-setInterval(showPopupMessage, Math.random() * (30000 - 20000) + 20000); // Random intervals between 20-30 seconds
-
-// Category selection handler
-function selectCategory(category) {
-  selectedCategory = category;
-  categoryButtons.style.display = 'none';  // Hide category buttons
-  chatBox.innerHTML = '';  // Clear chatbox
-  addMessage(`You selected the "${category}" category. Ask me a question!`, 'bot');
-}
-
-// Ask user if they'd like to ask a question in the current category or switch
-function askCategorySwitch() {
-  addMessage('Would you like to ask another question in this category or choose a different category?', 'bot');
-  // Reset category buttons when user chooses to change category
-  categoryButtons.style.display = 'block';
-  selectedCategory = null;  // Reset category
-  chatBox.innerHTML = ''; // Clear chatbox
-}
+setInterval(showPopupMessage, Math.random() * (30000 - 20000) + 20000); // Random intervals between 30-20 seconds
