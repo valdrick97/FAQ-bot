@@ -78,6 +78,18 @@ button:hover {
   background: #0056b3;
 }
 
+/* Category Buttons Style */
+.category-button {
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 50px;
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+}
+
 .popup-message {
   position: fixed;
   bottom: 120px;
