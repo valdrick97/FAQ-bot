@@ -1,7 +1,7 @@
 const chatBox = document.getElementById('chatBox');
 const chatContainer = document.getElementById('chatContainer');
 const popupMessage = document.getElementById('popupMessage');
-const categoryContainer = document.getElementById('categoryContainer');
+const categoryContainer = document.getElementById('categoryButtons'); // Updated for clarity
 let faqData = [];
 let fuzzySet = null;
 
@@ -19,7 +19,6 @@ fetch('faqData.json')
   .then(data => {
     faqData = data.faqs;
     fuzzySet = FuzzySet(faqData.map(faq => faq.question));
-    loadCategories();
   })
   .catch(error => {
     console.error('Error loading FAQ data:', error);
@@ -64,42 +63,64 @@ function sendMessage() {
 
 // Toggle chat container visibility
 function toggleChat() {
-  chatContainer.style.display =
-    chatContainer.style.display === 'none' || chatContainer.style.display === '' ? 'block' : 'none';
+  const isChatOpen = chatContainer.style.display === 'block';
+  chatContainer.style.display = isChatOpen ? 'none' : 'block';
+
+  // Hide pop-up message when the chat is opened
+  if (!isChatOpen) {
+    popupMessage.style.display = 'none';
+  }
 }
 
 // Load categories into the chat
 function loadCategories() {
+  categoryContainer.innerHTML = ''; // Clear existing buttons (if any)
   categories.forEach(category => {
     const button = document.createElement('button');
     button.className = 'category-button';
     button.textContent = category.name;
-    button.onclick = () => showQuestions(category);
+    button.onclick = () => selectCategory(category.name);
     categoryContainer.appendChild(button);
   });
 }
 
+// Handle category selection
+function selectCategory(categoryName) {
+  const buttons = document.querySelectorAll('.category-button');
+  buttons.forEach(button => button.classList.remove('selected')); // Clear selected state
+
+  const selectedButton = Array.from(buttons).find(button => button.textContent === categoryName);
+  if (selectedButton) selectedButton.classList.add('selected');
+
+  const category = categories.find(cat => cat.name === categoryName);
+  if (category) {
+    showQuestions(category);
+  }
+}
+
 // Show questions for selected category
 function showQuestions(category) {
-  const categoryQuestions = category.questions;
-  categoryQuestions.forEach(question => {
+  chatBox.innerHTML = ''; // Clear chat box
+  category.questions.forEach(question => {
     addMessage(question, 'bot');
   });
 
-  // Ask if the user wants to ask another question
   addMessage("Would you like to ask another question or change the category?", 'bot');
 }
 
 // Show the pop-up message randomly
 function showPopupMessage() {
-  const randomDelay = Math.floor(Math.random() * (9000 - 7000 + 1)) + 7000; // Random delay between 7-9 seconds
-  setTimeout(() => {
+  const isChatOpen = chatContainer.style.display === 'block';
+  if (!isChatOpen) {
     popupMessage.style.display = 'block';
     setTimeout(() => {
       popupMessage.style.display = 'none';
-    }, 5000); // Hide the message after 3 seconds
-  }, randomDelay);
+    }, 5000); // Hide the message after 5 seconds
+  }
 }
 
 // Call showPopupMessage randomly
-setInterval(showPopupMessage, Math.random() * (30000 - 20000) + 20000); // Random intervals between 30-20 seconds
+setInterval(showPopupMessage, Math.random() * (30000 - 20000) + 20000); // Random intervals between 20-30 seconds
+
+// Initialize categories on page load
+loadCategories();
