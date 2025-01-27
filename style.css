@@ -96,23 +96,23 @@ button:hover {
 .category-container {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 10px;
-  padding: 10px;
+  margin-bottom: 10px 10px 20px;
 }
 
 .category-button {
-  background-color: #4CAF50;
+  background-color: #007bff;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 10px;
+  border-radius: 20px;
+  font-size: 14px;
   cursor: pointer;
-  width: 100px;
+  width: 20%;
   text-align: center;
 }
 
 .category-button:hover {
-  background-color: #45a049;
+  background-color: #40056b3;
 }
 
 /* Adjust chat box for better fit */
