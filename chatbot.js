@@ -25,12 +25,6 @@ function addMessage(text, sender) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-document.getElementById('userInput').addEventListener('keypress', function (e) {
-  if (e.key === 'Enter') {
-    sendMessage();
-  }
-});
-
 // Handle user input and bot response
 function sendMessage() {
   const userInput = document.getElementById('userInput').value;
@@ -40,6 +34,12 @@ function sendMessage() {
 
   let bestMatch = fuzzySet.get(userInput);
   let response = "I'm sorry, I don't understand that question.";
+
+  // Check if the user wants to filter by category
+  const categoryMatch = faqData.filter(f => userInput.toLowerCase().includes(f.category));
+  if (categoryMatch.length > 0) {
+    bestMatch = fuzzySet.get(categoryMatch[0].question); // Narrow down to the category
+  }
 
   if (bestMatch && bestMatch.length > 0 && bestMatch[0][0] > 0.5) {
     let matchedQuestion = bestMatch[0][1];
@@ -59,10 +59,13 @@ function toggleChat() {
 
 // Random pop-up message
 function showPopupMessage() {
-  popupMessage.style.display = 'block';
+  const randomDelay = Math.floor(Math.random() * (9000 - 7000 + 1)) + 7000; // Random delay between 7-9 seconds
   setTimeout(() => {
-    popupMessage.style.display = 'none';
-  }, 5000); // Hide the message after 5 seconds
+    popupMessage.style.display = 'block';
+    setTimeout(() => {
+      popupMessage.style.display = 'none';
+    }, 5000); // Hide the message after 5 seconds
+  }, randomDelay);
 }
 
 // Call showPopupMessage randomly
