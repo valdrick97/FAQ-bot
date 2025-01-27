@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Casino",
+    "questions": ["When is the casino open?", "What are the casino hours?"]
+  },
+  {
+    "name": "LMS",
+    "questions": ["How do I do a B2B?", "How do I reset my password?"]
+  },
+  {
+    "name": "Discounts",
+    "questions": ["What are this month's discount offers?", "Do you offer any discounts?"]
+  },
+  {
+    "name": "Support",
+    "questions": ["How do I contact support?", "What is the support number?"]
+  }
+]
