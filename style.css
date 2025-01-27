@@ -1,67 +1,108 @@
-/* Positioning the bubbles at the bottom and centering them */
-.bubble-container {
+/* Ensure the chat container starts hidden */
+.chat-container {
+  display: none; /* Start hidden */
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  width: 300px;
+  height: 400px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   display: flex;
-  justify-content: center;
-  gap: 10px; /* Add space between the bubbles */
-  position: absolute;
-  bottom: 50px; /* Move closer to the input field */
-  width: 100%;
-  padding: 0 10px;
-  box-sizing: border-box;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1000;
 }
 
-/* Styling individual bubbles */
+/* Category Buttons */
+.category-container {
+  display: flex;
+  justify-content: space-evenly; /* Center the buttons evenly */
+  margin: 5px 0; /* Small margin to position the bubbles */
+}
+
 .category-button {
   padding: 10px 15px;
+  margin: 0 5px;
+  background-color: #eee;
   border: none;
-  border-radius: 20px;
-  background-color: #007bff;
-  color: white;
+  border-radius: 15px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: all 0.3s;
+}
+
+.category-button.selected {
+  background-color: #4caf50; /* Highlight color for selected category */
+  color: white;
 }
 
 .category-button:hover {
-  background-color: #0056b3;
-  transform: scale(1.1);
+  background-color: #ddd; /* Hover effect */
 }
 
-.category-button.active {
-  background-color: #28a745; /* Active category color */
-}
-
-/* Chat messages dimming */
+/* Messages in the chatbox */
 .message {
-  margin: 5px 0;
   padding: 10px;
-  border-radius: 5px;
+  margin: 5px;
+  border-radius: 10px;
   max-width: 80%;
-}
-
-.user-message {
-  background-color: #d1ecf1;
-  align-self: flex-end;
+  word-wrap: break-word;
+  animation: fade-in 0.3s ease-in-out;
 }
 
 .bot-message {
-  background-color: #f8d7da;
+  background-color: #e6f7ff;
   align-self: flex-start;
-  opacity: 0.5; /* Older messages default to dimmed */
-  transition: opacity 0.3s ease;
+  color: #333;
 }
 
-/* Highlight the latest message */
-.message.new {
-  opacity: 1;
+.user-message {
+  background-color: #d4edda;
+  align-self: flex-end;
+  color: #333;
 }
 
-/* Enable scrolling */
-.chat-box {
-  overflow-y: auto;
-  height: calc(100% - 140px); /* Adjust to fit the new bubble layout */
-  padding: 10px;
+/* Dim old messages */
+.message.dim {
+  opacity: 0.5;
+}
+
+/* Input container */
+.input-container {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  scroll-behavior: smooth;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.input-container input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+}
+
+.input-container button {
+  margin-left: 10px;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.input-container button:hover {
+  background-color: #0056b3;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
