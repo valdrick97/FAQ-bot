@@ -2,7 +2,7 @@
 .chat-container {
   display: none; /* Start hidden */
   position: fixed;
-  bottom: 10px;
+  bottom: 80px;
   right: 10px;
   width: 300px;
   height: 400px;
@@ -13,6 +13,8 @@
   flex-direction: column;
   overflow: hidden;
   z-index: 1000;
+  font-family: Arial, sans-serif;
+  max-width: 90%;
 }
 
 /* Chatbot button (small circle) */
@@ -37,7 +39,7 @@
 /* Category Buttons */
 .category-container {
   display: flex;
-  justify-content: space-evenly; /* Center the buttons evenly */
+  justify-content: center;
   margin: 5px 0; /* Small margin to position the bubbles */
 }
 
