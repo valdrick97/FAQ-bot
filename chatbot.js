@@ -27,7 +27,7 @@ fetch("categories.json")
 
 // Ensure chat starts closed on load
 document.addEventListener("DOMContentLoaded", () => {
-  chatContainer.style.display = "none";
+  chatContainer.style.display = "none"; // Make sure chat is closed on load
   popupMessage.style.display = "block";
 });
 
@@ -35,10 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
 function toggleChat() {
   if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
     chatContainer.style.display = "flex";
-    popupMessage.style.display = "none";
+    popupMessage.style.display = "none"; // Hide popup when chat is open
   } else {
     chatContainer.style.display = "none";
-    popupMessage.style.display = "block";
+    popupMessage.style.display = "block"; // Show popup when chat is closed
   }
 }
 
