@@ -34,7 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
 // Toggle chat visibility
 function toggleChat() {
   if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
-    chatContainer.style.display = "flex";
+    chatContainer.style.display = 'block';
+      addMessage('How can I help you today?', 'bot');
     popupMessage.style.display = "none"; // Hide popup when chat is open
   } else {
     chatContainer.style.display = "none";
