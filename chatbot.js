@@ -1,8 +1,10 @@
 const chatBox = document.getElementById('chatBox');
 const chatContainer = document.getElementById('chatContainer');
 const popupMessage = document.getElementById('popupMessage');
+const categoryButtons = document.getElementById('categoryButtons');
 let faqData = [];
 let fuzzySet = null;
+let selectedCategory = null;
 
 // Fetch FAQ data from JSON file
 fetch('faqData.json')
@@ -25,6 +27,12 @@ function addMessage(text, sender) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+document.getElementById('userInput').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+    sendMessage();
+  }
+});
+
 // Handle user input and bot response
 function sendMessage() {
   const userInput = document.getElementById('userInput').value;
@@ -35,38 +43,53 @@ function sendMessage() {
   let bestMatch = fuzzySet.get(userInput);
   let response = "I'm sorry, I don't understand that question.";
 
-  // Check if the user wants to filter by category
-  const categoryMatch = faqData.filter(f => userInput.toLowerCase().includes(f.category));
-  if (categoryMatch.length > 0) {
-    bestMatch = fuzzySet.get(categoryMatch[0].question); // Narrow down to the category
-  }
-
   if (bestMatch && bestMatch.length > 0 && bestMatch[0][0] > 0.5) {
     let matchedQuestion = bestMatch[0][1];
-    let faq = faqData.find(f => f.question === matchedQuestion);
+    let faq = faqData.find(f => f.question === matchedQuestion && (!selectedCategory || f.category === selectedCategory));
     response = faq ? faq.answer : response;
   }
 
   addMessage(response, 'bot');
   document.getElementById('userInput').value = '';
+
+  // Ask if they want to ask another question or choose a new category
+  addMessage('Would you like to ask another question in this category or choose a different category?', 'bot');
 }
 
 // Toggle chat container visibility
 function toggleChat() {
   chatContainer.style.display =
     chatContainer.style.display === 'none' || chatContainer.style.display === '' ? 'block' : 'none';
+  if (chatContainer.style.display === 'block') {
+    // Initial greeting
+    addMessage('How may I help you today?', 'bot');
+  }
 }
 
 // Random pop-up message
 function showPopupMessage() {
-  const randomDelay = Math.floor(Math.random() * (9000 - 7000 + 1)) + 7000; // Random delay between 7-9 seconds
+  popupMessage.style.display = 'block';
   setTimeout(() => {
-    popupMessage.style.display = 'block';
-    setTimeout(() => {
-      popupMessage.style.display = 'none';
-    }, 5000); // Hide the message after 5 seconds
-  }, randomDelay);
+    popupMessage.style.display = 'none';
+  }, 5000); // Hide the message after 5 seconds
 }
 
 // Call showPopupMessage randomly
 setInterval(showPopupMessage, Math.random() * (30000 - 20000) + 20000); // Random intervals between 20-30 seconds
+
+// Category selection handler
+function selectCategory(category) {
+  selectedCategory = category;
+  categoryButtons.style.display = 'none';  // Hide category buttons
+  chatBox.innerHTML = '';  // Clear chatbox
+  addMessage(`You selected the "${category}" category. Ask me a question!`, 'bot');
+}
+
+// Ask user if they'd like to ask a question in the current category or switch
+function askCategorySwitch() {
+  addMessage('Would you like to ask another question in this category or choose a different category?', 'bot');
+  // Reset category buttons when user chooses to change category
+  categoryButtons.style.display = 'block';
+  selectedCategory = null;  // Reset category
+  chatBox.innerHTML = ''; // Clear chatbox
+}
