@@ -120,6 +120,10 @@ button:hover {
   background-color: #0056b3; /* Hover effect */
 }
 
+.category-button.selected {
+  background-color: #28a745; /* Green color for selected state */
+}
+
 /* Adjust chat box for better fit */
 .chat-container {
   display: flex;
